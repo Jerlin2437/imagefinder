@@ -18,14 +18,106 @@ import java.util.stream.Collectors;
 public class ImageCrawler {
     public List<String> imageUrls;
     public List<String> subPageUrls;
+    public List<String> filteredUrls;
+    private List<String> filteredImages;
+
     public Set<String> visitedUrls;
     public Set<String> visitedImages;
     private String baseImageUrl;
-    int urlCrawlStatus;
 
     public List<String> crawlImages(String initialUrl) {
+        //one layer web crawl
+        visitedUrls = new HashSet<>();
+        visitedImages = new HashSet<>();
+        imageUrls = new ArrayList<>();
+        subPageUrls = new ArrayList<>();
+        filteredUrls = new ArrayList<>();
+        filteredImages = new ArrayList<>();
+        baseImageUrl = initialUrl;
+        List<Thread> threads = new ArrayList<>();
+        try {
+            Document document = Jsoup.connect(initialUrl).get();
+            extractUrls(document);
+            extractAndAddImages(document);
+            int maxThreads1Layer = subPageUrls.size();
 
-        return imageUrls;
+            List<ThreadedUrlExtractor> urlExtractorThreads = new ArrayList<>();
+
+
+            for (int x = 0; x < maxThreads1Layer; x++) {
+                try {
+                    ThreadedUrlExtractor threadedUrlExtractor = new ThreadedUrlExtractor(subPageUrls.get(x), baseImageUrl);
+                    Thread thread = threadedUrlExtractor.getThread();  // Get the associated thread
+                    thread.start();
+                    urlExtractorThreads.add(threadedUrlExtractor);
+                    System.out.println("thread url number: " + x);
+                } catch (Exception e) {
+                    // Handle exception
+                }
+            }
+
+// Wait for all threads to complete
+            for (ThreadedUrlExtractor extractorThread : urlExtractorThreads) {
+                try {
+                    extractorThread.getThread().join();
+                } catch (InterruptedException e) {
+                    // Handle InterruptedException
+                }
+            }
+
+// Collect results and add them to subPageUrls
+            for (ThreadedUrlExtractor extractorThread : urlExtractorThreads) {
+                subPageUrls.addAll(extractorThread.getSubPageUrls());
+            }
+
+
+            filterUrls();
+            System.out.println("Here are the filtered urls: "+ filteredUrls);
+            System.out.println("Run has here");
+            maxThreads1Layer = filteredUrls.size();
+            for (int x = 0; x < maxThreads1Layer; x++){
+                try{
+                    ThreadedImageExtractor threadedImageExtractor = new ThreadedImageExtractor(filteredUrls.get(x));
+                    Thread thread = new Thread(threadedImageExtractor);
+                    thread.start();
+                    imageUrls.addAll(threadedImageExtractor.getImageUrls());
+                    System.out.println("thread image number: " + x);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            filterImages();
+
+        } catch (Exception e) {
+            System.out.println("Run has failed");
+        }
+        System.out.println("Here are the filtered images: "+ filteredImages);
+        return filteredImages;
+    }
+    private void filterImages() {
+        for (int x = 0; x < imageUrls.size(); x++) {
+            String imageUrl = imageUrls.get(x);
+          //  System.out.println(imageUrl);
+            if (!filteredImages.contains(imageUrl)) {
+                filteredImages.add(imageUrl);
+            }
+        }
+
+        // Clear the original subPageUrls and add the filtered URLs back
+        imageUrls.clear();
+    }
+
+    private void filterUrls() {
+        for (int x = 0; x < subPageUrls.size(); x++) {
+            String subPageUrl = subPageUrls.get(x);
+      //      System.out.println(subPageUrl);
+            if (!filteredUrls.contains(subPageUrl)) {
+                filteredUrls.add(subPageUrl);
+            }
+        }
+
+        // Clear the original subPageUrls and add the filtered URLs back
+        subPageUrls.clear();
     }
 //    public List<String> crawlImages(String initialUrl) {
 //        visitedUrls = new HashSet<>();
@@ -56,6 +148,8 @@ public class ImageCrawler {
 //        }
 //        return imageUrls;
 //    }
+
+    //extracts subpages and adds them to subPageUrl, a list of all subpages. Only adds if not visited.
     private void extractUrls(Document document) {
         Elements links = document.select("a[href]");
         subPageUrls.addAll(links.stream()
@@ -64,6 +158,7 @@ public class ImageCrawler {
                 .peek(visitedUrls::add)  // Add the URL to the visitedUrls set
                 .collect(Collectors.toList()));
     }
+    //extracts image in given URL. Only adds if has not been added before.
     private void extractAndAddImages(Document document) {
         Elements images = document.select("img");
         imageUrls.addAll(images.stream()

@@ -5,67 +5,44 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ThreadedImageExtractor implements Runnable {
-    private String url;
-    private Set<String> visitedUrls;
+public class ThreadedImageExtractor implements Runnable{
+    private List<String> imageUrls;
     private Set<String> visitedImages;
-    private String baseImageUrl;
+    private String url;
 
-    public ThreadedImageExtractor(String url, Set<String> visitedUrls, Set<String> visitedImages, String baseImageUrl) {
+    public ThreadedImageExtractor(String url) {
         this.url = url;
-        this.visitedUrls = visitedUrls;
-        this.visitedImages = visitedImages;
-        this.baseImageUrl = baseImageUrl;
+        imageUrls = new ArrayList<>();
+        visitedImages = new HashSet<>();
     }
 
     @Override
     public void run() {
         try {
-            extractUrls(Jsoup.connect(url).get());
-            System.out.println("Fetching images from subpage: " + url);
-            Document subDocument = Jsoup.connect(url).get();
-            extractAndAddImages(subDocument);
-
+            extractAndAddImages(Jsoup.connect(url).get());
         } catch (IOException e) {
             System.err.println("Error fetching images from subpage: " + url);
-            e.printStackTrace();
         }
     }
-
-    private void extractUrls(Document document) {
-        Elements links = document.select("a[href]");
-        List<String> subPageUrls = links.stream()
-                .map(link -> link.absUrl("href"))
-                .filter(subUrl -> isSameDomain(baseImageUrl, subUrl) && !visitedUrls.contains(subUrl))
-                .peek(visitedUrls::add)
-                .collect(Collectors.toList());
-        // You may want to process the subPageUrls further or store them for future crawling
-    }
-
     private void extractAndAddImages(Document document) {
         Elements images = document.select("img");
-        List<String> imageUrls = images.stream()
+        imageUrls.addAll(images.stream()
                 .map(img -> img.absUrl("src"))
                 .filter(url -> !visitedImages.contains(url))
-                .peek(visitedImages::add)
-                .collect(Collectors.toList());
-        // You may want to process the imageUrls further or store them
+                .peek(visitedImages::add)  // Add the image URL to the visitedImages set
+                .collect(Collectors.toList()));
+
+        // Print the image URLs to the console
+        // imageUrls.forEach(System.out::println);
     }
 
-    private boolean isSameDomain(String baseUrl, String url) {
-        try {
-            URI baseUri = new URI(baseUrl);
-            URI subPageUri = new URI(url);
-            return baseUri.getHost().equalsIgnoreCase(subPageUri.getHost());
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            return false;
-        }
+    public List<String> getImageUrls() {
+        return imageUrls;
     }
 }
