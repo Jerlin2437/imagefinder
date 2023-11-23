@@ -6,7 +6,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -38,7 +37,7 @@ public class ImageCrawler {
         try {
             Document document = Jsoup.connect(initialUrl).get();
             extractUrls(document);
-            extractAndAddImages(document);
+       //     extractAndAddImages(document);
             int maxThreads1Layer = subPageUrls.size();
 
             List<ThreadedUrlExtractor> urlExtractorThreads = new ArrayList<>();
@@ -73,25 +72,41 @@ public class ImageCrawler {
 
             filterUrls();
             System.out.println("Here are the filtered urls: "+ filteredUrls);
-            System.out.println("Run has here");
+
+            List<ThreadedImageExtractor> imageExtractorThreads = new ArrayList<>();
             maxThreads1Layer = filteredUrls.size();
             for (int x = 0; x < maxThreads1Layer; x++){
                 try{
                     ThreadedImageExtractor threadedImageExtractor = new ThreadedImageExtractor(filteredUrls.get(x));
                     Thread thread = new Thread(threadedImageExtractor);
                     thread.start();
-                    imageUrls.addAll(threadedImageExtractor.getImageUrls());
+                    imageExtractorThreads.add(threadedImageExtractor);
                     System.out.println("thread image number: " + x);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             }
+            // Wait for all threads to complete
+            for (ThreadedImageExtractor extractorThread : imageExtractorThreads) {
+                try {
+                    extractorThread.run();
+                } catch (Exception e) {
+                    // Handle exception
+                }
+            }
+
+// Collect results and add them to imageUrls
+            for (ThreadedImageExtractor extractorThread : imageExtractorThreads) {
+                imageUrls.addAll(extractorThread.getImageUrls());
+            }
+
+
             filterImages();
+            System.out.println("Here are the filtered images: "+ filteredImages);
 
         } catch (Exception e) {
             System.out.println("Run has failed");
         }
-        System.out.println("Here are the filtered images: "+ filteredImages);
         return filteredImages;
     }
     private void filterImages() {

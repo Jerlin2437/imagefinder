@@ -15,11 +15,12 @@ public class ThreadedImageExtractor implements Runnable{
     private List<String> imageUrls;
     private Set<String> visitedImages;
     private String url;
-
+    private Thread thread;
     public ThreadedImageExtractor(String url) {
         this.url = url;
         imageUrls = new ArrayList<>();
         visitedImages = new HashSet<>();
+        this.thread = new Thread(this);
     }
 
     @Override
@@ -39,10 +40,15 @@ public class ThreadedImageExtractor implements Runnable{
                 .collect(Collectors.toList()));
 
         // Print the image URLs to the console
+        System.out.println(imageUrls);
         // imageUrls.forEach(System.out::println);
     }
 
     public List<String> getImageUrls() {
         return imageUrls;
+    }
+
+    public Thread getThread() {
+        return thread;
     }
 }
