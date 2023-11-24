@@ -36,6 +36,7 @@ public class ThreadedImageExtractor implements Runnable{
         imageUrls.addAll(images.stream()
                 .map(img -> img.absUrl("src"))
                 .filter(url -> !visitedImages.contains(url))
+                .filter(url -> !url.toLowerCase().contains("logo")) // Exclude images with "logo" in the URL
                 .peek(visitedImages::add)  // Add the image URL to the visitedImages set
                 .collect(Collectors.toList()));
 
