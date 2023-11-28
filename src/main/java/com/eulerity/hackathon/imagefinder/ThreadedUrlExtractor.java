@@ -35,7 +35,6 @@ public class ThreadedUrlExtractor implements Runnable {
             extractUrls(Jsoup.connect(url).get());
         } catch (IOException e) {
             System.err.println("Error fetching urls from subpage: " + url);
-            // e.printStackTrace();
         }
     }
 

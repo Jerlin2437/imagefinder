@@ -1,0 +1,79 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f8ff; /* Pastel Blue */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    flex-direction: column; /* Adjusted to column layout */
+}
+
+h1, h2, p {
+    color: #333; /* Dark Gray */
+}
+
+.content {
+    text-align: center;
+}
+
+.input {
+    margin-bottom: 20px;
+}
+
+form {
+    display: inline-block;
+}
+
+input {
+    padding: 10px;
+    font-size: 16px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #87CEFA; /* Light Sky Blue */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    margin-left: 10px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #4682B4; /* Steel Blue */
+}
+
+.output {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+ul.results {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+img {
+    margin: 10px;
+    border-radius: 5px;
+    animation: fadeIn 0.5s ease;
+    max-width: 100%; /* Ensures images do not exceed their original size */
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}

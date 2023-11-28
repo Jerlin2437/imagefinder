@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ImageCrawler {
+    public List<String> imageUrlsWithLabels;
     public List<String> imageUrls;
     public List<String> subPageUrls;
     public List<String> filteredUrls;
@@ -149,7 +150,6 @@ public class ImageCrawler {
     }
 
 
-
     //extracts subpages and adds them to subPageUrl, a list of all subpages. Only adds if not visited.
     private void extractUrls(Document document) {
         Elements links = document.select("a[href]");
@@ -159,6 +159,7 @@ public class ImageCrawler {
                 .peek(visitedUrls::add)  // Add the URL to the visitedUrls set
                 .collect(Collectors.toList()));
     }
+
     //extracts image in given URL. Only adds if has not been added before.
     private void extractAndAddImages(Document document) {
         Elements images = document.select("img");
@@ -169,8 +170,9 @@ public class ImageCrawler {
                 .collect(Collectors.toList()));
 
         // Print the image URLs to the console
-       // imageUrls.forEach(System.out::println);
+        // imageUrls.forEach(System.out::println);
     }
+
     private boolean isSameDomain(String baseUrl, String url) {
         try {
             URI baseUri = new URI(baseUrl);

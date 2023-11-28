@@ -11,11 +11,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ThreadedImageExtractor implements Runnable{
+public class ThreadedImageExtractor implements Runnable {
     private List<String> imageUrls;
     private Set<String> visitedImages;
     private String url;
     private Thread thread;
+
     public ThreadedImageExtractor(String url) {
         this.url = url;
         imageUrls = new ArrayList<>();
@@ -31,6 +32,7 @@ public class ThreadedImageExtractor implements Runnable{
             System.err.println("Error fetching images from subpage: " + url);
         }
     }
+
     private void extractAndAddImages(Document document) {
         Elements images = document.select("img");
         imageUrls.addAll(images.stream()
