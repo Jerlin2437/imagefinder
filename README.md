@@ -1,12 +1,12 @@
 ## Structure
-The ImageFinder servlet is found in `src/main/java/com/eulerity/hackathon/imagefinder/ImageFinder.java`. This is the only provided Java class. Feel free to add more classes or packages as you see fit. 
+The ImageFinder servlet is found in `src/main/java/com/eulerity/hackathon/imagefinder/ImageFinder.java`. 
 
-The main landing page for this project can be found in `src/main/webapp/index.html`. This page contains more instructions and serves as the starting page for the web application. You may edit this page as much as it suits you, and/or add other pages. 
+The main landing page for this project can be found in `src/main/webapp/index.html`. This page contains more instructions and serves as the starting page for the web application. 
 
-Finally, in the root directory of this project, you will find the `pom.xml`. This contains the project configuration details used by maven to build the project. If you want/need to use outside dependencies, you should add them to this file.
+Finally, in the root directory of this project, you will find the `pom.xml`. This contains the project configuration details used by maven to build the project.
 
 ## Running the Project
-Here we will detail how to setup and run this project so you may get started, as well as the requirements needed to do so.
+Detail on how to setup and run this project so you may get started, as well as the requirements needed to do so.
 
 ### Requirements
 Before beginning, make sure you have the following installed and ready to use
@@ -27,5 +27,5 @@ To run the project, use the following command to start the server:
 
 >`mvn clean test package jetty:run`
 
-You should see a line at the bottom that says "Started Jetty Server". Now, if you enter `localhost:8080` into your browser, you should see the `index.html` welcome page! If all has gone well to this point, you're ready to begin!
+You should see a line at the bottom that says "Started Jetty Server". Now, if you enter `localhost:8080` into your browser, you should see the `index.html` welcome page! 
 
