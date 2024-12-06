@@ -47,6 +47,14 @@ button:hover {
     background-color: #4682B4; /* Steel Blue */
 }
 
+#view-previous-btn {
+    background-color: #FFA07A; /* Light Salmon */
+}
+
+#view-previous-btn:hover {
+    background-color: #FF4500; /* Orange Red */
+}
+
 .output {
     display: flex;
     flex-wrap: wrap;

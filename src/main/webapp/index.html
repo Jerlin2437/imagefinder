@@ -10,7 +10,8 @@
         <form>
             <input type="text" name="url">
         </form>
-        <button type="button">Submit!</button>
+        <button type="button" id="submit-btn">Submit!</button>
+        <button type="button" id="view-previous-btn">View Previous Images</button>
     </div>
     <div class="output">
         <div class="status"></div> <!-- To display status messages -->
@@ -23,53 +24,73 @@
 </div>
 
 <script>
-    var resultList = document.querySelector('ul.results');
-    var urlInput = document.querySelector('input[name=url]');
-    var loadingAnim = document.querySelector('.loading-animation');
-    var statusDiv = document.querySelector('.status');
+    let cachedImages = []; // Array to store previously loaded images
+    const resultList = document.querySelector('ul.results');
+    const urlInput = document.querySelector('input[name=url]');
+    const statusDiv = document.querySelector('.status');
+    const submitBtn = document.getElementById('submit-btn');
+    const viewPreviousBtn = document.getElementById('view-previous-btn');
 
     let dotsInterval;
 
-    apiCallBack = function (xhr, callback) {
+    const apiCallBack = function (xhr, callback) {
         if (xhr.readyState == XMLHttpRequest.DONE) {
             clearInterval(dotsInterval); // Stop the dots animation
-            loadingAnim.style.display = 'none'; // Hide loading message
+            document.querySelector('.loading-animation').style.display = 'none'; // Hide loading
             if (xhr.status != 200) {
-                let message = xhr.status + ":" + xhr.statusText + ":"
-                    + xhr.responseText;
-                alert(message);
-                throw 'API call returned bad code: ' + xhr.status;
+                alert(`Error ${xhr.status}: ${xhr.statusText}`);
+                throw `API call failed: ${xhr.status}`;
             }
-            let response = xhr.responseText ? JSON.parse(xhr.responseText)
-                : null;
+            const response = JSON.parse(xhr.responseText || '[]');
             if (callback) {
                 callback(response);
             }
         }
-    }
+    };
 
-    updateList = function (response) {
-        resultList.innerHTML = '';
-        statusDiv.textContent = "We found 'em!"; // Display success message
-        for (var i = 0; i < response.length; i++) {
-            var img = document.createElement("img");
+    const updateList = function (images) {
+        resultList.innerHTML = ''; // Clear current list
+        statusDiv.textContent = "We found 'em!";
+
+        // Cache new images
+        cachedImages.push(...images);
+
+        // Render images
+        images.forEach((src) => {
+            const img = document.createElement('img');
             img.width = 200;
-            img.src = response[i];
+            img.src = src;
             resultList.appendChild(img);
-        }
-    }
+        });
+    };
 
-    makeApiCall = function (url, method, obj, callback) {
-        let xhr = new XMLHttpRequest();
+    const showCachedImages = function () {
+        resultList.innerHTML = ''; // Clear current list
+        statusDiv.textContent = "Previously loaded images:";
+
+        // Render cached images
+        cachedImages.forEach((src) => {
+            const img = document.createElement('img');
+            img.width = 200;
+            img.src = src;
+            resultList.appendChild(img);
+        });
+    };
+
+    // Handle API call for new images
+    const makeApiCall = function (url, method, obj, callback) {
+        const xhr = new XMLHttpRequest();
         xhr.open(method, url);
         xhr.onreadystatechange = apiCallBack.bind(null, xhr, callback);
-        xhr.send(obj ? obj instanceof FormData || obj.constructor == String ? obj : JSON.stringify(obj) : null);
-    }
+        xhr.send(obj ? JSON.stringify(obj) : null);
+    };
 
-    document.querySelector('button').addEventListener("click", function (event) {
+    // Event listener for "Submit" button
+    submitBtn.addEventListener('click', (event) => {
         event.preventDefault();
 
-        // Start loading dots animation
+        // Start loading animation
+        const loadingAnim = document.querySelector('.loading-animation');
         loadingAnim.style.display = 'block';
         loadingAnim.textContent = 'Loading';
         statusDiv.textContent = ''; // Clear previous status
@@ -80,8 +101,14 @@
             loadingAnim.textContent = 'Loading' + dots;
         }, 500);
 
-        // Start API call
-        makeApiCall('/main?url=' + urlInput.value, 'POST', null, updateList);
+        // Make API call
+        makeApiCall(`/main?url=${urlInput.value}`, 'POST', null, updateList);
+    });
+
+    // Event listener for "View Previous Images" button
+    viewPreviousBtn.addEventListener('click', (event) => {
+        event.preventDefault();
+        showCachedImages();
     });
 </script>
 </body>
