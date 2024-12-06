@@ -18,7 +18,7 @@ public class ThreadedUrlExtractor implements Runnable {
     private String url;
     private Set<String> visitedUrls;
     private String baseUrl;
-    private Thread thread;  // Store reference to the associated thread
+    private Thread thread;
 
     public ThreadedUrlExtractor(String url, String baseUrl) {
         this.url = url;
@@ -26,7 +26,7 @@ public class ThreadedUrlExtractor implements Runnable {
         visitedUrls = new HashSet<>();
         visitedUrls.add(url);
         subPageUrls = new ArrayList<>();
-        this.thread = new Thread(this);  // Create the associated thread
+        this.thread = new Thread(this);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class ThreadedUrlExtractor implements Runnable {
         try {
             extractUrls(Jsoup.connect(url).get());
         } catch (IOException e) {
-            System.err.println("Error fetching urls from subpage: " + url);
+            System.err.println("Error fetching URLs from subpage: " + url);
         }
     }
 
@@ -43,22 +43,16 @@ public class ThreadedUrlExtractor implements Runnable {
         subPageUrls.addAll(links.stream()
                 .map(link -> link.absUrl("href"))
                 .filter(url -> isSameDomain(baseUrl, url))
-                .peek(visitedUrls::add)  // Add the URL to the visitedUrls set
+                .peek(visitedUrls::add)
                 .collect(Collectors.toList()));
-
-        System.out.println(subPageUrls);
     }
 
     private boolean isSameDomain(String baseUrl, String url) {
         try {
             URI baseUri = new URI(baseUrl);
             URI subPageUri = new URI(url);
-
-            // Compare the host (domain) of the base URL and subpage URL
             return baseUri.getHost().equalsIgnoreCase(subPageUri.getHost());
-
         } catch (URISyntaxException e) {
-            // Handle the exception if the URL is not well-formed
             e.printStackTrace();
             return false;
         }

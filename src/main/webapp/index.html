@@ -14,7 +14,7 @@
         <button type="button" id="view-previous-btn">View Previous Images</button>
     </div>
     <div class="output">
-        <div class="status"></div> <!-- To display status messages -->
+        <div class="status"></div>
         <ul class="results"></ul>
     </div>
 </div>
@@ -24,7 +24,7 @@
 </div>
 
 <script>
-    let cachedImages = []; // Array to store previously loaded images
+    let cachedImages = [];
     const resultList = document.querySelector('ul.results');
     const urlInput = document.querySelector('input[name=url]');
     const statusDiv = document.querySelector('.status');
@@ -33,10 +33,10 @@
 
     let dotsInterval;
 
-    const apiCallBack = function (xhr, callback) {
+    const apiCallBack = function(xhr, callback) {
         if (xhr.readyState == XMLHttpRequest.DONE) {
-            clearInterval(dotsInterval); // Stop the dots animation
-            document.querySelector('.loading-animation').style.display = 'none'; // Hide loading
+            clearInterval(dotsInterval);
+            document.querySelector('.loading-animation').style.display = 'none';
             if (xhr.status != 200) {
                 alert(`Error ${xhr.status}: ${xhr.statusText}`);
                 throw `API call failed: ${xhr.status}`;
@@ -48,14 +48,11 @@
         }
     };
 
-    const updateList = function (images) {
-        resultList.innerHTML = ''; // Clear current list
+    const updateList = function(images) {
+        resultList.innerHTML = '';
         statusDiv.textContent = "We found 'em!";
-
-        // Cache new images
         cachedImages.push(...images);
 
-        // Render images
         images.forEach((src) => {
             const img = document.createElement('img');
             img.width = 200;
@@ -64,11 +61,9 @@
         });
     };
 
-    const showCachedImages = function () {
-        resultList.innerHTML = ''; // Clear current list
+    const showCachedImages = function() {
+        resultList.innerHTML = '';
         statusDiv.textContent = "Previously loaded images:";
-
-        // Render cached images
         cachedImages.forEach((src) => {
             const img = document.createElement('img');
             img.width = 200;
@@ -77,35 +72,30 @@
         });
     };
 
-    // Handle API call for new images
-    const makeApiCall = function (url, method, obj, callback) {
+    const makeApiCall = function(url, method, obj, callback) {
         const xhr = new XMLHttpRequest();
         xhr.open(method, url);
         xhr.onreadystatechange = apiCallBack.bind(null, xhr, callback);
         xhr.send(obj ? JSON.stringify(obj) : null);
     };
 
-    // Event listener for "Submit" button
     submitBtn.addEventListener('click', (event) => {
         event.preventDefault();
 
-        // Start loading animation
         const loadingAnim = document.querySelector('.loading-animation');
         loadingAnim.style.display = 'block';
         loadingAnim.textContent = 'Loading';
-        statusDiv.textContent = ''; // Clear previous status
+        statusDiv.textContent = '';
         let dots = '';
         dotsInterval = setInterval(() => {
             dots += '.';
-            if (dots.length > 3) dots = ''; // Reset dots after 3
+            if (dots.length > 3) dots = '';
             loadingAnim.textContent = 'Loading' + dots;
         }, 500);
 
-        // Make API call
         makeApiCall(`/main?url=${urlInput.value}`, 'POST', null, updateList);
     });
 
-    // Event listener for "View Previous Images" button
     viewPreviousBtn.addEventListener('click', (event) => {
         event.preventDefault();
         showCachedImages();
