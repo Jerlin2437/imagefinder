@@ -5,7 +5,6 @@
 <body>
 <h1>A cool image crawler!</h1>
 
-
 <div class="content">
     <div class="input">
         <form>
@@ -14,17 +13,27 @@
         <button type="button">Submit!</button>
     </div>
     <div class="output">
-        <ul class="results">
-
-        </ul>
+        <div class="status"></div> <!-- To display status messages -->
+        <ul class="results"></ul>
     </div>
 </div>
+
+<div class="animation-container">
+    <div class="loading-animation">Loading</div>
+</div>
+
 <script>
     var resultList = document.querySelector('ul.results');
-    var urlInput = document.querySelector('input[name=url]')
+    var urlInput = document.querySelector('input[name=url]');
+    var loadingAnim = document.querySelector('.loading-animation');
+    var statusDiv = document.querySelector('.status');
 
-    apiCallBack = function(xhr, callback) {
+    let dotsInterval;
+
+    apiCallBack = function (xhr, callback) {
         if (xhr.readyState == XMLHttpRequest.DONE) {
+            clearInterval(dotsInterval); // Stop the dots animation
+            loadingAnim.style.display = 'none'; // Hide loading message
             if (xhr.status != 200) {
                 let message = xhr.status + ":" + xhr.statusText + ":"
                     + xhr.responseText;
@@ -39,8 +48,9 @@
         }
     }
 
-    updateList = function(response) {
+    updateList = function (response) {
         resultList.innerHTML = '';
+        statusDiv.textContent = "We found 'em!"; // Display success message
         for (var i = 0; i < response.length; i++) {
             var img = document.createElement("img");
             img.width = 200;
@@ -49,18 +59,30 @@
         }
     }
 
-    makeApiCall = function(url, method, obj, callback) {
+    makeApiCall = function (url, method, obj, callback) {
         let xhr = new XMLHttpRequest();
         xhr.open(method, url);
         xhr.onreadystatechange = apiCallBack.bind(null, xhr, callback);
         xhr.send(obj ? obj instanceof FormData || obj.constructor == String ? obj : JSON.stringify(obj) : null);
     }
 
-    document.querySelector('button').addEventListener("click", function(event) {
+    document.querySelector('button').addEventListener("click", function (event) {
         event.preventDefault();
+
+        // Start loading dots animation
+        loadingAnim.style.display = 'block';
+        loadingAnim.textContent = 'Loading';
+        statusDiv.textContent = ''; // Clear previous status
+        let dots = '';
+        dotsInterval = setInterval(() => {
+            dots += '.';
+            if (dots.length > 3) dots = ''; // Reset dots after 3
+            loadingAnim.textContent = 'Loading' + dots;
+        }, 500);
+
+        // Start API call
         makeApiCall('/main?url=' + urlInput.value, 'POST', null, updateList);
     });
 </script>
 </body>
-
 </html>

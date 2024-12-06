@@ -51,6 +51,7 @@ button:hover {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+    text-align: center;
 }
 
 ul.results {
@@ -76,4 +77,26 @@ img {
     to {
         opacity: 1;
     }
+}
+
+.animation-container {
+    position: absolute;
+    top: 10%;
+    width: 100%;
+    text-align: center;
+    z-index: 1000;
+    pointer-events: none; /* Avoid interaction */
+}
+
+.loading-animation {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333; /* Dark Gray */
+    display: none;
+}
+
+.status {
+    font-size: 20px;
+    color: #4682B4; /* Steel Blue */
+    margin-bottom: 10px;
 }

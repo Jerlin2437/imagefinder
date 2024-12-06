@@ -1,4 +1,4 @@
-package com.eulerity.hackathon.imagefinder;
+package com.imagefinder;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

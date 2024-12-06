@@ -1,4 +1,4 @@
-package com.eulerity.hackathon.imagefinder;
+package com.imagefinder;
 
 import java.io.IOException;
 import java.util.List;
